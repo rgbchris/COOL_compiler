@@ -1,0 +1,20 @@
+
+<STRING> {STRING_TEXT} {
+  if (yytext().length() > MAX_STR_CONST) {
+    return new Symbol(TokenConstants.ERROR, "String constant too long"); 
+  }
+  return new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(yytext()));
+}
+
+<STRING> \\0 {
+  return new Symbol(TokenConstants.ERROR, "String contains null character."); 
+}
+
+
+
+.                               { /* This rule should be the very last
+                                     in your lexical specification and
+                                     will match match everything not
+                                     matched by other lexical rules. */
+                                  System.err.println("LEXER BUG - UNMATCHED: " + yytext()); }
+

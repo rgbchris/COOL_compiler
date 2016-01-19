@@ -81,13 +81,14 @@ import java_cup.runtime.Symbol;
 %line
 %state COMMENT
 %state STRING 
+%state NULL 
 
 UPPERCASEALPHA = [A-Z]
 ALPHA = [a-zA-Z]
 DIGIT = [0-9]
 ALPHANUMERIC = [a-zA-Z0-9]
-WHITESPACE = [\ \f\t\v]
-STRING_TEXT = ([^\0\"\\])*
+WHITESPACE = [\ \f\t]
+STRING_TEXT = (\\\"|\\\n|[^\n\"])*
 SINGLE_LINE_COMMENT = (--)[^\n\r]*
 TRUE_TEST = t[rR][uU][eE]
 FALSE_TEST = f[aA][lL][sS][eE]
@@ -158,37 +159,82 @@ ISVOID = [iI][sS][vV][oO][iI][dD]
 <YYINITIAL> {ISVOID}    { return new Symbol(TokenConstants.ISVOID, yytext()); }
 
 <YYINITIAL> \" {
+  // start string
+  string_buf.delete(0, string_buf.length()); //reset buffer
   yybegin(STRING);
 }
 
-<STRING> \\0 {
-  return new Symbol(TokenConstants.ERROR, "String contains null character"); 
+<STRING> \" {
+  // end string
+  yybegin(YYINITIAL);
+  if (string_buf.toString().length() >= MAX_STR_CONST) {
+    return new Symbol(TokenConstants.ERROR, "String constant too long"); 
+  }
+  return new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(string_buf.toString()));
 }
 
-<STRING> \" {
+<STRING> \0 {
+  yybegin(NULL);
+  return new Symbol(TokenConstants.ERROR, "String contains null character."); 
+}
+
+<STRING> \\\x00 {
+  yybegin(NULL);
+  return new Symbol(TokenConstants.ERROR, "String contains escaped null character."); 
+}
+
+<NULL> .*\" {
   yybegin(YYINITIAL);
 }
 
-<STRING> \\ {
-  string_escapable = true;
+<NULL> .*\n {
+  curr_lineno++;
+  yybegin(YYINITIAL);
+}
+
+<STRING> \\\\ { 
+  /* escaped backslash */
+  string_buf.append('\\');
+}
+
+<STRING> \\\" { 
+  /* escaped quote */
+  string_buf.append('\"');
 }
 
 <STRING> \n {
-  if (string_escapable != true) {
-    return new Symbol(TokenConstants.ERROR, "Unterminated string constant"); 
-  }
+  curr_lineno++;
+  yybegin(YYINITIAL);
+  return new Symbol(TokenConstants.ERROR, "Unterminated string constant"); 
+}
+
+<STRING> \\\n { 
+  string_buf.append('\n'); 
+  curr_lineno++;
 }
 
 <STRING> \\n { 
-  /* escaped newline */ 
+  string_buf.append('\n'); 
+}
+<STRING> \\n { string_buf.append('\n'); }
+<STRING> \\b { string_buf.append('\b'); }
+<STRING> \\t|\t { string_buf.append('\t'); }
+<STRING> \\f|\f { string_buf.append('\f'); }
+<STRING> \013 { string_buf.append('\013'); /*  */ }
+<STRING> \015 { string_buf.append('\015'); /* carriage return */ }
+<STRING> \022 { string_buf.append('\022'); /* */ }
+<STRING> \033 { string_buf.append('\033'); /* escape */  }
+
+<STRING> \\[^btfn\\\"] { 
+  string_buf.append(yytext().replace("\\", ""));
 }
 
-<STRING> [^\n\r\"\\]* {
-  if (yytext().length() > MAX_STR_CONST) {
-    return new Symbol(TokenConstants.ERROR, "String constant too long"); 
-  }
-  return new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(yytext()));
+<STRING> ([a-zA-Z0-9!#$%&@^'=<>()\[\]?+-:_*]|[\ ])* { 
+  string_buf.append(yytext());
 }
+
+<YYINITIAL> \015 { }
+<YYINITIAL> \013 { /* vertical tab */ }
 
 <YYINITIAL> {SINGLE_LINE_COMMENT}  {}
 
@@ -207,7 +253,9 @@ ISVOID = [iI][sS][vV][oO][iI][dD]
   }
 }
 
-<COMMENT> . { }
+<COMMENT> [^] { 
+  /* [^] - allows for catching binary chars. */  
+}
 
 <YYINITIAL> "*)"  { 
   return new Symbol(TokenConstants.ERROR, "Unmatched *)"); 
@@ -227,10 +275,9 @@ ISVOID = [iI][sS][vV][oO][iI][dD]
   return new Symbol(TokenConstants.INT_CONST, AbstractTable.inttable.addString(yytext()));
 }
 
+<YYINITIAL> [\ \n\s] { }
 
+. {
+  return new Symbol(TokenConstants.ERROR, yytext()); 
+}
 
-.                               { /* This rule should be the very last
-                                     in your lexical specification and
-                                     will match match everything not
-                                     matched by other lexical rules. */
-                                  System.err.println("LEXER BUG - UNMATCHED: " + yytext()); }
