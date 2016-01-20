@@ -86,9 +86,7 @@ import java_cup.runtime.Symbol;
 UPPERCASEALPHA = [A-Z]
 ALPHA = [a-zA-Z]
 DIGIT = [0-9]
-ALPHANUMERIC = [a-zA-Z0-9]
 WHITESPACE = [\ \f\t]
-STRING_TEXT = (\\\"|\\\n|[^\n\"])*
 SINGLE_LINE_COMMENT = (--)[^\n\r]*
 TRUE_TEST = t[rR][uU][eE]
 FALSE_TEST = f[aA][lL][sS][eE]
@@ -117,55 +115,54 @@ ISVOID = [iI][sS][vV][oO][iI][dD]
   curr_lineno++;
 }
 
-<YYINITIAL> "+"  { return new Symbol(TokenConstants.PLUS, yytext()); }
-<YYINITIAL> "-"  { return new Symbol(TokenConstants.MINUS, yytext()); }
-<YYINITIAL> "*"  { return new Symbol(TokenConstants.MULT, yytext()); }
-<YYINITIAL> "/"  { return new Symbol(TokenConstants.DIV, yytext()); }
-<YYINITIAL> "~"  { return new Symbol(TokenConstants.NEG, yytext()); }
-<YYINITIAL> "<"  { return new Symbol(TokenConstants.LT, yytext()); }
-<YYINITIAL> "<=" { return new Symbol(TokenConstants.LE, yytext()); }
-<YYINITIAL> "=>" { return new Symbol(TokenConstants.DARROW, yytext()); }
-<YYINITIAL> "="  { return new Symbol(TokenConstants.EQ, yytext()); }
-<YYINITIAL> ","  { return new Symbol(TokenConstants.COMMA, yytext()); }
-<YYINITIAL> "."  { return new Symbol(TokenConstants.DOT, yytext()); }
-<YYINITIAL> ":"  { return new Symbol(TokenConstants.COLON, yytext()); }
-<YYINITIAL> ";"  { return new Symbol(TokenConstants.SEMI, yytext()); }
-<YYINITIAL> "<-" { return new Symbol(TokenConstants.ASSIGN, yytext()); }
-<YYINITIAL> "("  { return new Symbol(TokenConstants.LPAREN, yytext()); }
-<YYINITIAL> ")"  { return new Symbol(TokenConstants.RPAREN, yytext()); }
-<YYINITIAL> "{"  { return new Symbol(TokenConstants.LBRACE, yytext()); }
-<YYINITIAL> "}"  { return new Symbol(TokenConstants.RBRACE, yytext()); }
-<YYINITIAL> "@"  { return new Symbol(TokenConstants.AT, yytext()); }
+<YYINITIAL> "+"  { return new Symbol(TokenConstants.PLUS); }
+<YYINITIAL> "-"  { return new Symbol(TokenConstants.MINUS); }
+<YYINITIAL> "*"  { return new Symbol(TokenConstants.MULT); }
+<YYINITIAL> "/"  { return new Symbol(TokenConstants.DIV); }
+<YYINITIAL> "~"  { return new Symbol(TokenConstants.NEG); }
+<YYINITIAL> "<"  { return new Symbol(TokenConstants.LT); }
+<YYINITIAL> "<=" { return new Symbol(TokenConstants.LE); }
+<YYINITIAL> "=>" { return new Symbol(TokenConstants.DARROW); }
+<YYINITIAL> "="  { return new Symbol(TokenConstants.EQ); }
+<YYINITIAL> ","  { return new Symbol(TokenConstants.COMMA); }
+<YYINITIAL> "."  { return new Symbol(TokenConstants.DOT); }
+<YYINITIAL> ":"  { return new Symbol(TokenConstants.COLON); }
+<YYINITIAL> ";"  { return new Symbol(TokenConstants.SEMI); }
+<YYINITIAL> "<-" { return new Symbol(TokenConstants.ASSIGN); }
+<YYINITIAL> "("  { return new Symbol(TokenConstants.LPAREN); }
+<YYINITIAL> ")"  { return new Symbol(TokenConstants.RPAREN); }
+<YYINITIAL> "{"  { return new Symbol(TokenConstants.LBRACE); }
+<YYINITIAL> "}"  { return new Symbol(TokenConstants.RBRACE); }
+<YYINITIAL> "@"  { return new Symbol(TokenConstants.AT); }
 
 <YYINITIAL> {TRUE_TEST}  { return new Symbol(TokenConstants.BOOL_CONST, (Boolean)true); }
 <YYINITIAL> {FALSE_TEST} { return new Symbol(TokenConstants.BOOL_CONST, (Boolean)false); }
-
-<YYINITIAL> {CLASS}     { return new Symbol(TokenConstants.CLASS, yytext()); }
-<YYINITIAL> {ELSE}      { return new Symbol(TokenConstants.ELSE, yytext()); }
-<YYINITIAL> {FI}        { return new Symbol(TokenConstants.FI, yytext()); }
-<YYINITIAL> {IF}        { return new Symbol(TokenConstants.IF, yytext()); }
-<YYINITIAL> {IN}        { return new Symbol(TokenConstants.IN, yytext()); }
-<YYINITIAL> {INHERITS}  { return new Symbol(TokenConstants.INHERITS, yytext()); }
-<YYINITIAL> {LET}       { return new Symbol(TokenConstants.LET, yytext()); }
-<YYINITIAL> {LOOP}      { return new Symbol(TokenConstants.LOOP, yytext()); }
-<YYINITIAL> {POOL}      { return new Symbol(TokenConstants.POOL, yytext()); }
-<YYINITIAL> {THEN}      { return new Symbol(TokenConstants.THEN, yytext()); }
-<YYINITIAL> {WHILE}     { return new Symbol(TokenConstants.WHILE, yytext()); }
-<YYINITIAL> {CASE}      { return new Symbol(TokenConstants.CASE, yytext()); }
-<YYINITIAL> {ESAC}      { return new Symbol(TokenConstants.ESAC, yytext()); }
-<YYINITIAL> {NEW}       { return new Symbol(TokenConstants.NEW, yytext()); }
-<YYINITIAL> {OF}        { return new Symbol(TokenConstants.OF, yytext()); }
-<YYINITIAL> {NOT}       { return new Symbol(TokenConstants.NOT, yytext()); }
-<YYINITIAL> {ISVOID}    { return new Symbol(TokenConstants.ISVOID, yytext()); }
+<YYINITIAL> {CLASS}     { return new Symbol(TokenConstants.CLASS); }
+<YYINITIAL> {ELSE}      { return new Symbol(TokenConstants.ELSE); }
+<YYINITIAL> {FI}        { return new Symbol(TokenConstants.FI); }
+<YYINITIAL> {IF}        { return new Symbol(TokenConstants.IF); }
+<YYINITIAL> {IN}        { return new Symbol(TokenConstants.IN); }
+<YYINITIAL> {INHERITS}  { return new Symbol(TokenConstants.INHERITS); }
+<YYINITIAL> {LET}       { return new Symbol(TokenConstants.LET); }
+<YYINITIAL> {LOOP}      { return new Symbol(TokenConstants.LOOP); }
+<YYINITIAL> {POOL}      { return new Symbol(TokenConstants.POOL); }
+<YYINITIAL> {THEN}      { return new Symbol(TokenConstants.THEN); }
+<YYINITIAL> {WHILE}     { return new Symbol(TokenConstants.WHILE); }
+<YYINITIAL> {CASE}      { return new Symbol(TokenConstants.CASE); }
+<YYINITIAL> {ESAC}      { return new Symbol(TokenConstants.ESAC); }
+<YYINITIAL> {NEW}       { return new Symbol(TokenConstants.NEW); }
+<YYINITIAL> {OF}        { return new Symbol(TokenConstants.OF); }
+<YYINITIAL> {NOT}       { return new Symbol(TokenConstants.NOT); }
+<YYINITIAL> {ISVOID}    { return new Symbol(TokenConstants.ISVOID); }
 
 <YYINITIAL> \" {
-  // start string
+  /* start string */
   string_buf.delete(0, string_buf.length()); //reset buffer
   yybegin(STRING);
 }
 
 <STRING> \" {
-  // end string
+  /* end string */
   yybegin(YYINITIAL);
   if (string_buf.toString().length() >= MAX_STR_CONST) {
     return new Symbol(TokenConstants.ERROR, "String constant too long"); 
@@ -216,13 +213,13 @@ ISVOID = [iI][sS][vV][oO][iI][dD]
 <STRING> \\n { 
   string_buf.append('\n'); 
 }
-<STRING> \\n { string_buf.append('\n'); }
-<STRING> \\b { string_buf.append('\b'); }
-<STRING> \\t|\t { string_buf.append('\t'); }
-<STRING> \\f|\f { string_buf.append('\f'); }
-<STRING> \013 { string_buf.append('\013'); /*  */ }
+<STRING> \\n { string_buf.append('\n'); /* newline */ }
+<STRING> \\b { string_buf.append('\b'); /* backspace */ }
+<STRING> \\t|\t { string_buf.append('\t'); /* tab */ }
+<STRING> \\f|\f { string_buf.append('\f'); /* formfeed */ }
+<STRING> \013 { string_buf.append('\013'); /* vertical tab */ }
 <STRING> \015 { string_buf.append('\015'); /* carriage return */ }
-<STRING> \022 { string_buf.append('\022'); /* */ }
+<STRING> \022 { string_buf.append('\022'); /* ^R device control 2 */ }
 <STRING> \033 { string_buf.append('\033'); /* escape */  }
 
 <STRING> \\[^btfn\\\"] { 
@@ -233,7 +230,7 @@ ISVOID = [iI][sS][vV][oO][iI][dD]
   string_buf.append(yytext());
 }
 
-<YYINITIAL> \015 { }
+<YYINITIAL> \015 { /* carriage return */ }
 <YYINITIAL> \013 { /* vertical tab */ }
 
 <YYINITIAL> {SINGLE_LINE_COMMENT}  {}
