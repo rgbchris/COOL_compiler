@@ -1,3 +1,0 @@
-[submodule "bundle/ag"]
-	path = bundle/ag
-	url = https://github.com/rgbchris/dotfiles.git
