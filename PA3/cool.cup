@@ -100,7 +100,9 @@ nonterminal let_l let;
 // PROGRAM  ---------------------------------------------------------------------
 program	::= class_list:cl
               // creates "programc" AST node
-	            {: RESULT = new programc(curr_lineno(), cl); :}
+	            {: 
+                RESULT = new programc(curr_lineno(), cl); 
+              :}
           ;
 
 // CLASS ------------------------------------------------------------------------
@@ -150,7 +152,11 @@ feature ::= OBJECTID:o LPAREN formal_list:fl RPAREN COLON TYPEID:t LBRACE expr:e
 
 
 // FORMAL -----------------------------------------------------------------------
-formal_list ::= formal:f
+formal_list ::= /**/
+                   {: 
+                     RESULT = new Formals(curr_lineno());
+                   :}
+              | formal:f
                    {: 
                      RESULT = (new Formals(curr_lineno())).appendElement(f);
                    :}
@@ -205,9 +211,8 @@ expr ::= /**/
            {: 
              RESULT = new static_dispatch(curr_lineno(), expr, type_name, name, actual); 
            :}
-       | OBJECTID:name LPAREN LBRACE expr:expr expr_list:actual RBRACE RPAREN
+       | OBJECTID:name LPAREN expr:expr expr_list:actual RPAREN
            {: 
-             /* DOUBLE CHECK */
              RESULT = new dispatch(curr_lineno(), expr, name, actual); 
            :}
        | IF expr:expr0 THEN expr:expr1 ELSE expr:expr2 FI
@@ -287,9 +292,9 @@ expr ::= /**/
            {:  
              RESULT = new int_const(curr_lineno(), int_name); 
            :}
-       | STR_CONST:string
+       | STR_CONST:str
            {:  
-             RESULT = new string_const(curr_lineno(), string); 
+             RESULT = new string_const(curr_lineno(), str); 
            :}
        | BOOL_CONST:bool
            {:  
