@@ -1,0 +1,28 @@
+48a49,51
+> 
+>                 _no_expr
+>                 : _no_type
+52a56,58
+> 
+>               _no_expr
+>               : _no_type
+62a69,71
+> 
+>               _no_expr
+>               : _no_type
+70c79
+<               self
+---
+>               Object
+84c93
+<               self
+---
+>               Object
+179c188
+<             self
+---
+>             Object
+199c208
+<                   self
+---
+>                   Object

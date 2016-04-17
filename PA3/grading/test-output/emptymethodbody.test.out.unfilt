@@ -1,0 +1,23 @@
+#4
+_program
+  #4
+  _class
+    Test
+    Object
+    "./emptymethodbody.test"
+    (
+    #3
+    _attr
+      foo
+      Test
+      #3
+      _no_expr
+      : _no_type
+    #4
+    _method
+      bar
+      Int
+      #3
+      _no_expr
+      : _no_type
+    )

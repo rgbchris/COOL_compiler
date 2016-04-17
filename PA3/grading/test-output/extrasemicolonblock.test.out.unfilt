@@ -1,0 +1,27 @@
+#7
+_program
+  #7
+  _class
+    A
+    Object
+    "./extrasemicolonblock.test"
+    (
+    #7
+    _method
+      f
+      Int
+      #6
+      _block
+        #3
+        _no_expr
+        : _no_type
+        #4
+        _string
+          "Hello"
+        : _no_type
+        #5
+        _int
+          5
+        : _no_type
+      : _no_type
+    )

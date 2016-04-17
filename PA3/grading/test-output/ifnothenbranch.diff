@@ -1,0 +1,31 @@
+1,2c1,27
+< filename, line 3: syntax error at or near LOCATION
+< Compilation halted due to lex and syntax errors
+---
+> 
+> _program
+> 
+>   _class
+>     A
+>     Object
+>     filename
+>     (
+> 
+>     _method
+>       f
+>       Object
+> 
+>       _cond
+> 
+>         _bool
+>           1
+>         : _no_type
+> 
+>         _no_expr
+>         : _no_type
+> 
+>         _int
+>           3
+>         : _no_type
+>       : _no_type
+>     )

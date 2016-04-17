@@ -1,0 +1,33 @@
+
+_program
+
+  _class
+    Test
+    Object
+    filename
+    (
+
+    _method
+      test
+
+      _formal
+        x
+        Int
+      String
+
+      _dispatch
+
+        _object
+          Object
+        : _no_type
+        x
+        (
+
+        _no_expr
+        : _no_type
+
+        _no_expr
+        : _no_type
+        )
+      : _no_type
+    )

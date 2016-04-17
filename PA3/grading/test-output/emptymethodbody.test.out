@@ -1,0 +1,23 @@
+
+_program
+
+  _class
+    Test
+    Object
+    filename
+    (
+
+    _attr
+      foo
+      Test
+
+      _no_expr
+      : _no_type
+
+    _method
+      bar
+      Int
+
+      _no_expr
+      : _no_type
+    )

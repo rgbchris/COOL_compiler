@@ -1,0 +1,83 @@
+1,4c1,77
+< filename, line 7: syntax error at or near LOCATION
+< filename, line 9: syntax error at or near LOCATION
+< filename, line 10: syntax error at or near LOCATION
+< Compilation halted due to lex and syntax errors
+---
+> 
+> _program
+> 
+>   _class
+>     Hello
+>     Object
+>     filename
+>     (
+> 
+>     _attr
+>       foo
+>       Int
+> 
+>       _int
+>         89
+>       : _no_type
+> 
+>     _attr
+>       bar
+>       Int
+> 
+>       _no_expr
+>       : _no_type
+> 
+>     _method
+>       foo
+> 
+>       _formal
+>         a
+>         Int
+> 
+>       _formal
+>         b
+>         Int
+> 
+>       _formal
+>         c
+>         String
+>       Int
+> 
+>       _typcase
+> 
+>         _no_expr
+>         : _no_type
+> 
+>         _branch
+>           b
+>           Int
+> 
+>           _object
+>             expr1
+>           : _no_type
+> 
+>         _branch
+>           d
+>           Object
+> 
+>           _block
+> 
+>             _object
+>               expr3
+>             : _no_type
+> 
+>             _object
+>               expr4
+>             : _no_type
+>           : _no_type
+>       : _no_type
+> 
+>     _method
+>       bar
+>       Int
+> 
+>       _int
+>         6
+>       : _no_type
+>     )
