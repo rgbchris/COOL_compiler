@@ -89,7 +89,7 @@ nonterminal Expressions block_expr_list;
 nonterminal Expressions expr_list;
 nonterminal Expression expr;
 
-nonterminal let let;
+nonterminal Expression let;
 
 /* Precedence declarations go here. */
 
@@ -117,27 +117,29 @@ program	::= class_list:cl                  {: RESULT = new programc(curr_lineno(
 
 class_list ::= class:c                         {: RESULT = (new Classes(curr_lineno())).appendElement(c); :}
 	           | class_list:cl class:c           {: RESULT = cl.appendElement(c); :}
-	           | class_list:cl error class:c     {: RESULT = cl.appendElement(c); :}
 	           ;
 
 /* If no parent is specified, the class inherits from the Object class */
 class ::= CLASS TYPEID:n LBRACE feature_list:f RBRACE SEMI                     {: RESULT = new class_c(curr_lineno(), n, AbstractTable.idtable.addString("Object"), f, curr_filename()); :}
 	      | CLASS TYPEID:n INHERITS TYPEID:p LBRACE feature_list:f RBRACE SEMI   {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
+	      | error LBRACE feature_list:f RBRACE SEMI   
+            {: RESULT = new class_c(curr_lineno(), AbstractTable.idtable.addString("Object"), AbstractTable.idtable.addString("Object"), f, curr_filename()); :}
 	      ;
 
 
 // FEATURE ----------------------------------------------------------------------
 
 /* Feature list may be empty, but no empty features in list. */
-feature_list ::= feature:f                           {: RESULT = (new Features(curr_lineno())).appendElement(f); :}
+feature_list ::= /**/                                {: RESULT = new Features(curr_lineno()); :} // TODO: don't need?
+               | feature:f                           {: RESULT = (new Features(curr_lineno())).appendElement(f); :}
                | feature_list:fl feature:f           {: RESULT = fl.appendElement(f); :}
-               | feature_list:fl error feature:f     {: RESULT = fl.appendElement(f); :} // TODO
-               | feature_list:fl feature:f error     {: RESULT = fl.appendElement(f); :} // TODO
                ;
 
 feature ::= OBJECTID:o LPAREN formal_list:fl RPAREN COLON TYPEID:t LBRACE expr:e RBRACE SEMI     {: RESULT = new method(curr_lineno(), o, fl, t, e); :}
           | OBJECTID:o COLON TYPEID:n ASSIGN expr:e SEMI                                         {: RESULT = new attr(curr_lineno(), o, n, e); :}
           | OBJECTID:o COLON TYPEID:n SEMI                                                       {: RESULT = new attr(curr_lineno(), o, n, new no_expr(curr_lineno())); :}
+          | error SEMI                                                       
+              {: RESULT = new attr(curr_lineno(), AbstractTable.idtable.addString("Object"), AbstractTable.idtable.addString("Object"), new no_expr(curr_lineno())); :}
           ;
 
 
@@ -146,50 +148,48 @@ feature ::= OBJECTID:o LPAREN formal_list:fl RPAREN COLON TYPEID:t LBRACE expr:e
 formal_list ::= /**/                                   {: RESULT = new Formals(curr_lineno()); :}
               | formal:f                               {: RESULT = (new Formals(curr_lineno())).appendElement(f); :}
               | formal_list:fl COMMA formal:f          {: RESULT = fl.appendElement(f); :}
-              | formal_list:fl error COMMA formal:f    {: RESULT = fl.appendElement(f); :}
-              | formal_list:fl COMMA formal:f error    {: RESULT = fl.appendElement(f); :} // TODO
               ;
 
 formal ::= OBJECTID:o COLON TYPEID:n       {: RESULT = new formalc(curr_lineno(), o, n); :}
+         // | error       {: RESULT = new formalc(curr_lineno(), AbstractTable.idtable.addString("Object"), AbstractTable.idtable.addString("Object")); :}
          ; 
 
 // CASE -------------------------------------------------------------------------
 
 case_list ::= case:c                       {: RESULT = (new Cases(curr_lineno())).appendElement(c); :}
             | case_list:cl case:c          {: RESULT = cl.appendElement(c); :}
-            | case_list:cl error case:c    {: RESULT = cl.appendElement(c); :} // TODO
             ;
 
 case ::= OBJECTID:name COLON TYPEID:type_name DARROW expr:expr SEMI    {: RESULT = new branch(curr_lineno(), name, type_name, expr); :}
+       // | error expr:expr SEMI    {: RESULT = new branch(curr_lineno(), AbstractTable.idtable.addString("Object"), AbstractTable.idtable.addString("Object"), expr); :}
        ;
 
 // EXPRESSION -------------------------------------------------------------------
 
 block_expr_list ::= expr:e SEMI                            {: RESULT = (new Expressions(curr_lineno())).appendElement(e); :} 
                   | block_expr_list:el expr:e SEMI         {: RESULT = el.appendElement(e); :}
-                  | block_expr_list:el expr:e error SEMI   {: RESULT = el.appendElement(e); :}
-                  | error SEMI                             {: RESULT = new Expressions(curr_lineno()); :} // TODO
-                  | error                                  {: RESULT = new Expressions(curr_lineno()); :} // TODO
+                  | error SEMI                             {: RESULT = new Expressions(curr_lineno()); :}
                   ;
 
-expr_list ::= expr:e                            {: RESULT = (new Expressions(curr_lineno())).appendElement(e); :}
+expr_list ::= /**/                              {: RESULT = new Expressions(curr_lineno()); :}
+            | expr:e                            {: RESULT = (new Expressions(curr_lineno())).appendElement(e); :}
             | expr_list:el COMMA expr:e         {: RESULT = el.appendElement(e); :}
-            | expr_list:el error COMMA expr:e   {: RESULT = el.appendElement(e); :} // TODO
-            | error                             {: RESULT = new Expressions(curr_lineno()); :} // TODO
+            | expr_list:el error COMMA expr:e   {: RESULT = el.appendElement(e); :} // GOOD
             ;
 
-expr ::= /**/                                                                            {: RESULT = new no_expr(curr_lineno()); :}
-       | OBJECTID:name ASSIGN expr:expr                                                  {: RESULT = new assign(curr_lineno(), name, expr); :}
+expr ::= OBJECTID:name ASSIGN expr:expr                                                  {: RESULT = new assign(curr_lineno(), name, expr); :}
        | expr:expr AT TYPEID:type_name DOT OBJECTID:name LPAREN expr_list:actual RPAREN  {: RESULT = new static_dispatch(curr_lineno(), expr, type_name, name, actual); :}
        | expr:expr DOT OBJECTID:name LPAREN expr_list:actual RPAREN                      {: RESULT = new dispatch(curr_lineno(), expr, name, actual); :}
-       | OBJECTID:name LPAREN expr:expr expr_list:actual RPAREN                          {: RESULT = new dispatch(curr_lineno(), expr, name, actual); :}
+       | OBJECTID:name LPAREN expr_list:actual RPAREN                                    
+          {: RESULT = new dispatch(curr_lineno(), new object(curr_lineno(), AbstractTable.idtable.addString("self")), name, actual); :}
        | IF expr:expr0 THEN expr:expr1 ELSE expr:expr2 FI                                {: RESULT = new cond(curr_lineno(), expr0, expr1, expr2); :}
        | WHILE expr:expr0 LOOP expr:expr1 POOL                                           {: RESULT = new loop(curr_lineno(), expr0, expr1); :}
        | LBRACE block_expr_list:exprs RBRACE                                             {: RESULT = new block(curr_lineno(), exprs); :}
-       | LET OBJECTID:name COLON TYPEID:type_name IN expr:e                              {: RESULT = new let(curr_lineno(), name, type_name, new no_expr(curr_lineno()), e); :}
-       | LET OBJECTID:name COLON TYPEID:type_name ASSIGN expr:e1 IN expr:e2              {: RESULT = new let(curr_lineno(), name, type_name, e1, e2); :}
-       | LET OBJECTID:name COLON TYPEID:type_name ASSIGN expr:expr let:let_expr          {: RESULT = new let(curr_lineno(), name, type_name, expr, let_expr); :}
-       | LET OBJECTID:name COLON TYPEID:type_name let:let_expr                           {: RESULT = new let(curr_lineno(), name, type_name, let_expr, new no_expr(curr_lineno())); :}
+
+       | LET OBJECTID:name COLON TYPEID:type_name let:e                              {: RESULT = new let(curr_lineno(), name, type_name, new no_expr(curr_lineno()), e); :}
+       | LET OBJECTID:name COLON TYPEID:type_name ASSIGN expr:e1 let:e2              {: RESULT = new let(curr_lineno(), name, type_name, e1, e2); :}
+       | LET error let:e                                                             {: RESULT = e; :}
+
        | CASE expr:expr OF case_list:cases ESAC                                          {: RESULT = new typcase(curr_lineno(), expr, cases); :}
        | NEW TYPEID:type_name                                                            {: RESULT = new new_(curr_lineno(), type_name); :}
        | ISVOID expr:expr                                                                {: RESULT = new isvoid(curr_lineno(), expr); :}
@@ -207,23 +207,15 @@ expr ::= /**/                                                                   
        | INT_CONST:int_name                                                              {: RESULT = new int_const(curr_lineno(), int_name); :}
        | STR_CONST:str                                                                   {: RESULT = new string_const(curr_lineno(), str); :}
        | BOOL_CONST:bool                                                                 {: RESULT = new bool_const(curr_lineno(), bool); :}
-       | error expr:e                                                                    {: RESULT = e; :}
        ;
 
 // LET ---------------------------------------------------------------------------
 
-let ::= OBJECTID:o COLON TYPEID:n IN expr:e                                {: RESULT = new let(curr_lineno(), o, n, new no_expr(curr_lineno()), e); :}
-      | OBJECTID:o COLON TYPEID:n ASSIGN expr:e1 IN expr:e2                {: RESULT = new let(curr_lineno(), o, n, e1, e2); :}
-
-      | OBJECTID:o COLON TYPEID:n let:l                                    {: RESULT = new let(curr_lineno(), o, n, new no_expr(curr_lineno()), l); :}
-      | OBJECTID:o COLON TYPEID:n ASSIGN expr:e let:l                      {: RESULT = new let(curr_lineno(), o, n, e, l); :}
-
-      | COMMA OBJECTID:o COLON TYPEID:n IN expr:e                          {: RESULT = new let(curr_lineno(), o, n, new no_expr(curr_lineno()), e); :}
-      | COMMA OBJECTID:o COLON TYPEID:n ASSIGN expr:e1 IN expr:e2          {: RESULT = new let(curr_lineno(), o, n, e1, e2); :}
-
-      | COMMA OBJECTID:o COLON TYPEID:n let:l                              {: RESULT = new let(curr_lineno(), o, n, new no_expr(curr_lineno()), l); :}
-      | COMMA OBJECTID:o COLON TYPEID:n ASSIGN expr:e let:l                {: RESULT = new let(curr_lineno(), o, n, e, l); :}
-      ;
+let::= IN expr:e {: RESULT = e; :}
+     | COMMA OBJECTID:o COLON TYPEID:n let:l                              {: RESULT = new let(curr_lineno(), o, n, new no_expr(curr_lineno()), l); :}
+     | COMMA OBJECTID:o COLON TYPEID:n ASSIGN expr:e let:l                {: RESULT = new let(curr_lineno(), o, n, e, l); :}
+     | error let:e {: RESULT = e; :}
+     ;
 
 
 
